@@ -1,0 +1,109 @@
+Traceback (most recent call last):
+  File "/Users/eito/anaconda3/lib/python3.10/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/Users/eito/anaconda3/lib/python3.10/site-packages/nbclient/client.py", line 1204, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+  File "/Users/eito/anaconda3/lib/python3.10/site-packages/nbclient/util.py", line 84, in wrapped
+    return just_run(coro(*args, **kwargs))
+  File "/Users/eito/anaconda3/lib/python3.10/site-packages/nbclient/util.py", line 62, in just_run
+    return loop.run_until_complete(coro)
+  File "/Users/eito/anaconda3/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
+    return future.result()
+  File "/Users/eito/anaconda3/lib/python3.10/site-packages/nbclient/client.py", line 663, in async_execute
+    await self.async_execute_cell(
+  File "/Users/eito/anaconda3/lib/python3.10/site-packages/nbclient/client.py", line 965, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/Users/eito/anaconda3/lib/python3.10/site-packages/nbclient/client.py", line 862, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from landsatxplore.api import API
+
+# 登錄 USGS Earth Explorer
+username = "******"  # USGS 用戶名
+password = "******"  # USGS 密碼
+
+# 創建 API 客戶端
+api = API(username, password)
+
+# 設定搜索參數
+location = (22.990333, 120.15339)  # 設定偏好經緯度，此處為安平漁港之坐標
+start_year = 2000  # 設定開始年份
+end_year = 2023  # 設定結束年份
+
+# 儲存有資料的年份
+available_years = []
+
+# 循環搜尋每一年
+for year in range(start_year, end_year + 1):
+    start_date = f'{year}-01-01'
+    end_date = f'{year}-12-31'
+    
+    # 搜索該年是否有影像
+    scenes = api.search(
+        dataset='landsat_ot_c2_l2',  # 使用適當的數據集名稱
+        latitude=location[0],
+        longitude=location[1],
+        start_date=start_date,
+        end_date=end_date,
+        max_cloud_cover=10  # 設定最大雲量
+    )
+    
+    # 如果有找到影像，將年份加入列表
+    if scenes:
+        available_years.append(year)
+
+# 列出有資料的年份
+print("Years with available data:", available_years)
+
+
+#----------選擇要下載的影像，例如：Landsat 8 OLI/TIRS Collection 2 Level 2 (landsat_ot_c2_l2) 的第三張影像----------
+#if scenes:
+#    scene_id = scenes[3]['entity_id']  # 取得第三個影像的 ID
+#    print("found")
+#    ee.download(scene_id, output_dir='./landsat_data_2')
+#else:
+#    print("No scenes found for the specified criteria.")
+
+# 下載影像
+#ee.download(scene_id, output_dir='./landsat_data_2')
+
+# 關閉 API 和 EarthExplorer 客戶端
+#api.logout()
+#ee.logout()
+#--------------------------------------------------------------------------------------------------------------
+
+# 關閉 API 客戶端
+api.logout()
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mUSGSAuthenticationError[0m                   Traceback (most recent call last)
+Cell [0;32mIn[1], line 8[0m
+[1;32m      5[0m password [38;5;241m=[39m [38;5;124m"[39m[38;5;124m******[39m[38;5;124m"[39m  [38;5;66;03m# USGS 密碼[39;00m
+[1;32m      7[0m [38;5;66;03m# 創建 API 客戶端[39;00m
+[0;32m----> 8[0m api [38;5;241m=[39m [43mAPI[49m[43m([49m[43musername[49m[43m,[49m[43m [49m[43mpassword[49m[43m)[49m
+[1;32m     10[0m [38;5;66;03m# 設定搜索參數[39;00m
+[1;32m     11[0m location [38;5;241m=[39m ([38;5;241m22.990333[39m, [38;5;241m120.15339[39m)  [38;5;66;03m# 設定偏好經緯度，此處為安平漁港之坐標[39;00m
+
+File [0;32m~/anaconda3/lib/python3.10/site-packages/landsatxplore/api.py:35[0m, in [0;36mAPI.__init__[0;34m(self, username, password)[0m
+[1;32m     33[0m [38;5;28mself[39m[38;5;241m.[39murl [38;5;241m=[39m API_URL
+[1;32m     34[0m [38;5;28mself[39m[38;5;241m.[39msession [38;5;241m=[39m requests[38;5;241m.[39mSession()
+[0;32m---> 35[0m [38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43mlogin[49m[43m([49m[43musername[49m[43m,[49m[43m [49m[43mpassword[49m[43m)[49m
+
+File [0;32m~/anaconda3/lib/python3.10/site-packages/landsatxplore/api.py:103[0m, in [0;36mAPI.login[0;34m(self, username, password)[0m
+[1;32m    101[0m payload [38;5;241m=[39m {[38;5;124m"[39m[38;5;124musername[39m[38;5;124m"[39m: username, [38;5;124m"[39m[38;5;124mpassword[39m[38;5;124m"[39m: password}
+[1;32m    102[0m r [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39msession[38;5;241m.[39mpost(login_url, json[38;5;241m.[39mdumps(payload))
+[0;32m--> 103[0m [38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43mraise_api_error[49m[43m([49m[43mr[49m[43m)[49m
+[1;32m    104[0m [38;5;28mself[39m[38;5;241m.[39msession[38;5;241m.[39mheaders[[38;5;124m"[39m[38;5;124mX-Auth-Token[39m[38;5;124m"[39m] [38;5;241m=[39m r[38;5;241m.[39mjson()[38;5;241m.[39mget([38;5;124m"[39m[38;5;124mdata[39m[38;5;124m"[39m)
+
+File [0;32m~/anaconda3/lib/python3.10/site-packages/landsatxplore/api.py:51[0m, in [0;36mAPI.raise_api_error[0;34m(response)[0m
+[1;32m     49[0m [38;5;28;01mif[39;00m error_code:
+[1;32m     50[0m     [38;5;28;01mif[39;00m error_code [38;5;129;01min[39;00m ([38;5;124m"[39m[38;5;124mAUTH_INVALID[39m[38;5;124m"[39m, [38;5;124m"[39m[38;5;124mAUTH_UNAUTHROIZED[39m[38;5;124m"[39m, [38;5;124m"[39m[38;5;124mAUTH_KEY_INVALID[39m[38;5;124m"[39m):
+[0;32m---> 51[0m         [38;5;28;01mraise[39;00m USGSAuthenticationError([38;5;124mf[39m[38;5;124m"[39m[38;5;132;01m{[39;00merror_code[38;5;132;01m}[39;00m[38;5;124m: [39m[38;5;132;01m{[39;00merror_msg[38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;124m"[39m)
+[1;32m     52[0m     [38;5;28;01melif[39;00m error_code [38;5;241m==[39m [38;5;124m"[39m[38;5;124mRATE_LIMIT[39m[38;5;124m"[39m:
+[1;32m     53[0m         [38;5;28;01mraise[39;00m USGSRateLimitError([38;5;124mf[39m[38;5;124m"[39m[38;5;132;01m{[39;00merror_code[38;5;132;01m}[39;00m[38;5;124m: [39m[38;5;132;01m{[39;00merror_msg[38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;124m"[39m)
+
+[0;31mUSGSAuthenticationError[0m: AUTH_INVALID: User credential verification failed.
+USGSAuthenticationError: AUTH_INVALID: User credential verification failed.
+
